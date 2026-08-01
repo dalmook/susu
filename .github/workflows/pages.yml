@@ -24,6 +24,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare riddle data
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64
+          import gzip
+          import json
+          from pathlib import Path
+
+          path = Path("data/riddles.json")
+          wire = json.loads(path.read_text(encoding="utf-8"))
+
+          if wire.get("encoding") == "gzip-base64":
+              decoded = gzip.decompress(
+                  base64.b64decode(wire["payload"])
+              ).decode("utf-8")
+              json.loads(decoded)
+              path.write_text(decoded, encoding="utf-8")
+              print("Decoded compressed riddle data for deployment.")
+          else:
+              print("Riddle data is already plain JSON.")
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
