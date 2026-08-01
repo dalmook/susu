@@ -1,0 +1,50 @@
+name: Decode riddle data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - data/riddles.json
+      - .github/workflows/decode-riddles.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode compressed dataset when needed
+        id: decode
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const zlib = require('zlib');
+          const path = 'data/riddles.json';
+          const wire = JSON.parse(fs.readFileSync(path, 'utf8'));
+          if (wire.encoding !== 'gzip-base64' || !wire.payload) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'changed=false\n');
+            console.log('Dataset is already decoded.');
+            process.exit(0);
+          }
+          const json = zlib.gunzipSync(Buffer.from(wire.payload, 'base64')).toString('utf8');
+          const data = JSON.parse(json);
+          if (!Array.isArray(data.riddles) || data.riddles.length === 0) {
+            throw new Error('Decoded dataset has no riddles.');
+          }
+          fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'changed=true\n');
+          console.log(`Decoded ${data.riddles.length} riddles.`);
+          NODE
+      - name: Commit decoded dataset
+        if: steps.decode.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/riddles.json
+          git commit -m "chore: decode riddle dataset"
+          git push
