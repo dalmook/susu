@@ -1,0 +1,59 @@
+name: Normalize Riddle Data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - data/riddles.json
+      - .github/workflows/normalize-riddles.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Convert compressed data to plain JSON
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64
+          import gzip
+          import json
+          from pathlib import Path
+
+          path = Path("data/riddles.json")
+          wire = json.loads(path.read_text(encoding="utf-8"))
+
+          if wire.get("encoding") != "gzip-base64":
+              print("Riddle data is already plain JSON.")
+              raise SystemExit(0)
+
+          decoded = gzip.decompress(
+              base64.b64decode(wire["payload"])
+          ).decode("utf-8")
+          data = json.loads(decoded)
+          path.write_text(
+              json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(f"Normalized {len(data.get('riddles', []))} riddles.")
+          PY
+
+      - name: Commit normalized data
+        shell: bash
+        run: |
+          if git diff --quiet -- data/riddles.json; then
+            echo "No data conversion was needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/riddles.json
+          git commit -m "fix: store riddle data as plain JSON"
+          git push
