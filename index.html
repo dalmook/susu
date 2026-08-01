@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="description" content="초등학교 1학년 눈높이의 재미있는 수수께끼 놀이터" />
+  <title>수수께끼 놀이터</title>
+  <style>
+    :root {
+      --bg: #fff8e8;
+      --surface: rgba(255,255,255,.92);
+      --ink: #2b2340;
+      --muted: #746b86;
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --sun: #fbbf24;
+      --good: #16a34a;
+      --bad: #ef4444;
+      --line: #eadff6;
+      --shadow: 0 18px 50px rgba(91, 55, 126, .16);
+      --radius: 28px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 5%, #ffe99a 0 8%, transparent 9%),
+        radial-gradient(circle at 92% 14%, #dec7ff 0 10%, transparent 11%),
+        linear-gradient(145deg, #fffaf0, #f6efff 62%, #eefaff);
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 4px solid rgba(124,58,237,.25);
+      outline-offset: 2px;
+    }
+    .app { width: min(980px, 100%); margin: 0 auto; padding: 18px 16px 90px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 8px 2px 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: clamp(21px, 4vw, 30px); }
+    .brand-bubble {
+      display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), #ec4899); color: white; box-shadow: 0 10px 24px rgba(124,58,237,.28);
+    }
+    .top-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 46px; height: 46px; border: 0; border-radius: 16px; background: var(--surface); color: var(--ink);
+      box-shadow: 0 8px 22px rgba(60,40,90,.1); font-size: 21px;
+    }
+    .panel {
+      background: var(--surface); border: 1px solid rgba(255,255,255,.75); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: clamp(20px, 4vw, 34px); backdrop-filter: blur(16px);
+    }
+    .hero { text-align: center; overflow: hidden; position: relative; }
+    .hero::before, .hero::after { content:""; position:absolute; border-radius:999px; filter: blur(1px); opacity:.55; }
+    .hero::before { width:140px; height:140px; background:#fde68a; left:-50px; top:-50px; }
+    .hero::after { width:170px; height:170px; background:#ddd6fe; right:-70px; bottom:-80px; }
+    .hero > * { position: relative; z-index: 1; }
+    .hero-emoji { font-size: clamp(58px, 12vw, 92px); animation: bob 2.8s ease-in-out infinite; }
+    @keyframes bob { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-8px) rotate(2deg)} }
+    h1 { margin: 8px 0 10px; font-size: clamp(31px, 7vw, 54px); line-height: 1.08; letter-spacing: -.05em; }
+    .lead { margin: 0 auto 24px; max-width: 620px; color: var(--muted); font-size: clamp(16px, 3vw, 20px); line-height: 1.6; }
+    .mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .mode-card {
+      border: 0; border-radius: 24px; padding: 22px 16px; text-align: left; min-height: 170px; position: relative; overflow: hidden;
+      color: var(--ink); transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .mode-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(60,40,90,.16); }
+    .mode-card.host { background: linear-gradient(145deg, #fff1a7, #ffd98a); }
+    .mode-card.play { background: linear-gradient(145deg, #e6d7ff, #c7e6ff); }
+    .mode-card .big { font-size: 44px; display:block; margin-bottom:8px; }
+    .mode-card strong { display:block; font-size:22px; margin-bottom:5px; }
+    .mode-card small { display:block; line-height:1.45; color:#574c68; font-size:14px; }
+    .section-title { font-size: 24px; margin: 0 0 16px; }
+    .filters { display:grid; grid-template-columns: 1.2fr 1fr auto; gap:10px; margin: 18px 0; }
+    select, input[type="search"], input[type="text"] {
+      width:100%; border:2px solid var(--line); border-radius:16px; padding:13px 14px; background:white; color:var(--ink);
+    }
+    .primary, .secondary, .ghost, .danger {
+      border:0; border-radius:17px; padding:13px 18px; font-weight:800; min-height:48px;
+    }
+    .primary { background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:white; box-shadow:0 10px 22px rgba(124,58,237,.25); }
+    .secondary { background:#fff0b8; color:#574000; }
+    .ghost { background:#f5f0fb; color:var(--ink); }
+    .danger { background:#fee2e2; color:#991b1b; }
+    .hidden { display:none !important; }
+    .game-top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; }
+    .progress-wrap { flex:1; height:12px; background:#eee6f5; border-radius:999px; overflow:hidden; }
+    .progress { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,#f59e0b,#ec4899,#7c3aed); transition:width .3s ease; }
+    .stats { white-space:nowrap; font-weight:900; }
+    .question-card { text-align:center; min-height: 410px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+    .question-card.correct { animation: pop .45s ease; }
+    @keyframes pop { 50% { transform: scale(1.018); } }
+    .category-pill { align-self:center; display:inline-flex; gap:6px; padding:7px 12px; border-radius:999px; background:#f5f0fb; color:#5c4876; font-weight:800; font-size:14px; }
+    .question-emoji { font-size: clamp(62px, 14vw, 96px); margin:14px 0 6px; }
+    .question { font-size:clamp(24px, 5.2vw, 39px); line-height:1.35; font-weight:900; letter-spacing:-.03em; margin:10px auto 18px; max-width:760px; }
+    .hint-box, .answer-box, .explain-box { margin:12px auto 0; max-width:700px; border-radius:18px; padding:14px 16px; line-height:1.55; }
+    .hint-box { background:#fff7d6; color:#674d00; }
+    .answer-box { background:#e9fce9; color:#14532d; font-size:clamp(24px,5vw,38px); font-weight:900; }
+    .explain-box { background:#eef5ff; color:#26476d; }
+    .action-row { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:22px; }
+    .choice-grid { display:grid; grid-template-columns:1fr; gap:12px; width:min(650px,100%); margin: 6px auto 0; }
+    .choice {
+      border:2px solid #e8def4; background:white; border-radius:20px; padding:16px; min-height:62px; font-size:clamp(19px,4vw,25px); font-weight:900;
+      transition:transform .15s, border-color .15s, background .15s;
+    }
+    .choice:hover { transform:translateY(-2px); border-color:#c4a7e7; }
+    .choice.good { background:#dcfce7; border-color:#22c55e; color:#166534; }
+    .choice.bad { background:#fee2e2; border-color:#ef4444; color:#991b1b; }
+    .result { text-align:center; }
+    .result .trophy { font-size:86px; }
+    .result h2 { font-size:clamp(30px,7vw,48px); margin:8px 0; }
+    .result p { color:var(--muted); font-size:19px; }
+    .riddle-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+    .riddle-item { border:2px solid #eee6f5; border-radius:20px; padding:16px; background:white; }
+    .riddle-item .meta { display:flex; justify-content:space-between; color:var(--muted); font-size:13px; margin-bottom:10px; }
+    .riddle-item strong { display:block; line-height:1.45; }
+    .riddle-item details { margin-top:12px; }
+    .riddle-item summary { cursor:pointer; color:var(--primary); font-weight:800; }
+    dialog { border:0; border-radius:26px; padding:0; width:min(620px,calc(100% - 24px)); box-shadow:0 24px 80px rgba(30,20,50,.3); }
+    dialog::backdrop { background:rgba(37,24,54,.56); backdrop-filter:blur(4px); }
+    .dialog-body { padding:24px; }
+    .dialog-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+    .dialog-head h2 { margin:0; }
+    .form-grid { display:grid; gap:12px; }
+    label { font-weight:800; font-size:14px; }
+    label span { display:block; margin-bottom:6px; }
+    .tiny { font-size:13px; color:var(--muted); line-height:1.5; }
+    .toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%,120px); background:#2b2340; color:white; padding:12px 18px; border-radius:999px; font-weight:800; z-index:50; transition:transform .25s; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    .toast.show { transform:translate(-50%,0); }
+    .confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:40; }
+    .confetti i { position:absolute; top:-20px; font-style:normal; animation:fall 1.5s linear forwards; }
+    @keyframes fall { to { transform:translateY(110vh) rotate(720deg); opacity:.1; } }
+    footer { text-align:center; color:var(--muted); padding:28px 0 0; font-size:13px; }
+    @media (max-width: 700px) {
+      .mode-grid { grid-template-columns:1fr; }
+      .filters { grid-template-columns:1fr 1fr; }
+      .filters button { grid-column:1/-1; }
+      .question-card { min-height:430px; padding:22px 16px; }
+      .top-actions .list-label { display:none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand"><span class="brand-bubble">❓</span><span>수수께끼 놀이터</span></div>
+      <div class="top-actions">
+        <button class="icon-btn" id="listBtn" aria-label="전체 문제 보기" title="전체 문제 보기">📚</button>
+        <button class="icon-btn" id="settingsBtn" aria-label="문제 관리" title="문제 관리">⚙️</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeView" class="panel hero">
+        <div class="hero-emoji">🧠✨</div>
+        <h1>생각이 톡! 웃음이 팡!</h1>
+        <p class="lead">초등학교 1학년 눈높이 수수께끼를 골라서 내거나, 아이가 직접 세 개의 답 중 하나를 고르며 풀 수 있어요.</p>
+        <div class="mode-grid">
+          <button class="mode-card host" data-mode="host">
+            <span class="big">👨‍👩‍👧</span><strong>같이 문제 내기</strong><small>문제 → 힌트 → 정답 순서로 보여 줘요. 가족·친구와 함께 놀기 좋아요.</small>
+          </button>
+          <button class="mode-card play" data-mode="play">
+            <span class="big">🎮</span><strong>혼자 도전하기</strong><small>보기 3개 중 정답을 골라 별을 모아요. 문제를 소리로 들을 수도 있어요.</small>
+          </button>
+        </div>
+        <div class="filters">
+          <select id="categorySelect" aria-label="분야 선택"><option value="전체">모든 분야</option></select>
+          <select id="difficultySelect" aria-label="난이도 선택"><option value="전체">모든 난이도</option><option value="1">쉬움</option><option value="2">조금 생각</option></select>
+          <button class="primary" id="randomStart">🎲 바로 시작</button>
+        </div>
+        <p class="tiny" id="dataInfo">문제를 불러오는 중이에요…</p>
+      </section>
+
+      <section id="gameView" class="hidden">
+        <div class="game-top">
+          <button class="ghost" id="homeBtn">← 처음으로</button>
+          <div class="progress-wrap" aria-label="진행률"><div class="progress" id="progress"></div></div>
+          <div class="stats" id="stats">⭐ 0</div>
+        </div>
+        <article class="panel question-card" id="questionCard">
+          <span class="category-pill" id="categoryPill"></span>
+          <div class="question-emoji" id="questionEmoji">❓</div>
+          <div class="question" id="questionText"></div>
+          <div id="hintBox" class="hint-box hidden"></div>
+          <div id="answerBox" class="answer-box hidden"></div>
+          <div id="explainBox" class="explain-box hidden"></div>
+          <div id="choiceGrid" class="choice-grid hidden"></div>
+          <div class="action-row" id="hostActions">
+            <button class="secondary" id="speakBtn">🔊 읽어주기</button>
+            <button class="ghost" id="hintBtn">💡 힌트</button>
+            <button class="primary" id="answerBtn">✨ 정답 보기</button>
+            <button class="ghost hidden" id="nextBtn">다음 문제 →</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="resultView" class="panel result hidden">
+        <div class="trophy">🏆</div><h2 id="resultTitle">멋진 도전!</h2><p id="resultText"></p>
+        <div class="action-row"><button class="primary" id="againBtn">한 번 더!</button><button class="ghost" id="resultHomeBtn">처음으로</button></div>
+      </section>
+
+      <section id="listView" class="panel hidden">
+        <div class="game-top"><h2 class="section-title">전체 문제 보기</h2><button class="ghost" id="listHomeBtn">닫기</button></div>
+        <div class="filters">
+          <input type="search" id="searchInput" placeholder="문제나 정답 검색" aria-label="문제 검색" />
+          <select id="listCategory" aria-label="목록 분야"><option value="전체">모든 분야</option></select>
+          <button class="ghost" id="shuffleList">🔀 섞기</button>
+        </div>
+        <p class="tiny" id="listCount"></p>
+        <div class="riddle-list" id="riddleList"></div>
+      </section>
+    </main>
+
+    <footer>아이와 함께 웃고, 틀려도 다시 생각해 보는 수수께끼 놀이터 · <span id="footerVersion"></span></footer>
+  </div>
+
+  <dialog id="settingsDialog">
+    <div class="dialog-body">
+      <div class="dialog-head"><h2>⚙️ 문제 관리</h2><button class="icon-btn" id="closeSettings" aria-label="닫기">✕</button></div>
+      <p class="tiny">사이트 기본 문제는 <code>data/riddles.json</code> 한 파일에서 관리돼요. 아래에서 추가한 문제는 이 기기에만 저장되며 JSON으로 내보낼 수 있어요.</p>
+      <form id="customForm" class="form-grid">
+        <label><span>문제</span><input id="customQuestion" type="text" required maxlength="120" placeholder="예: 비가 올 때 펴는 것은?" /></label>
+        <label><span>정답</span><input id="customAnswer" type="text" required maxlength="30" placeholder="예: 우산" /></label>
+        <label><span>힌트</span><input id="customHint" type="text" maxlength="80" placeholder="예: 머리 위에 써요" /></label>
+        <label><span>설명</span><input id="customExplanation" type="text" maxlength="120" placeholder="정답을 이해하기 쉬운 한 문장" /></label>
+        <label><span>분야</span><select id="customCategory"></select></label>
+        <button class="primary" type="submit">➕ 이 기기에 문제 추가</button>
+      </form>
+      <div class="action-row">
+        <button class="ghost" id="exportBtn">⬇️ 내 문제 JSON 내보내기</button>
+        <label class="ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">⬆️ JSON 불러오기<input id="importInput" type="file" accept="application/json" hidden /></label>
+        <button class="danger" id="clearCustom">추가 문제 지우기</button>
+      </div>
+      <p class="tiny" id="customCount"></p>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div><div class="confetti" id="confetti"></div>
+
+  <script>
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => [...document.querySelectorAll(q)];
+    const CATEGORIES = ["동물","음식","학교","생활","자연","말놀이","생각"];
+    const CATEGORY_EMOJI = {동물:"🐾",음식:"🍓",학교:"✏️",생활:"🏠",자연:"🌈",말놀이:"😄",생각:"🧠"};
+    const state = { base:[], custom:[], pool:[], current:null, mode:"host", index:0, score:0, round:10, locked:false, sequence:[] };
+
+    function shuffle(items){ const a=[...items]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function sample(items){ return items[Math.floor(Math.random()*items.length)]; }
+    function safeText(v){ return String(v ?? ""); }
+    function allRiddles(){ return [...state.base, ...state.custom]; }
+    function difficultyName(n){ return Number(n)===1 ? "쉬움" : "조금 생각"; }
+    function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove("show"),1800); }
+    function confetti(){ const box=$("#confetti"); box.innerHTML=""; const bits=["⭐","🎉","✨","💜","🌟"]; for(let i=0;i<26;i++){ const e=document.createElement("i"); e.textContent=sample(bits); e.style.left=Math.random()*100+"vw"; e.style.animationDelay=Math.random()*.45+"s"; e.style.fontSize=(14+Math.random()*20)+"px"; box.appendChild(e); } setTimeout(()=>box.innerHTML="",2100); }
+
+    async function loadData(){
+      try {
+        const res=await fetch("data/riddles.json", {cache:"no-cache"});
+        if(!res.ok) throw new Error("문제 파일을 불러오지 못했어요.");
+        const data=await res.json();
+        state.base=data.riddles || [];
+        state.custom=JSON.parse(localStorage.getItem("susu-custom") || "[]");
+        fillCategories();
+        $("#dataInfo").textContent=`기본 ${state.base.length}문제${state.custom.length ? ` + 내 문제 ${state.custom.length}개` : ""} · ${data.meta?.target || "초등 저학년"}`;
+        $("#footerVersion").textContent=`문제판 ${data.meta?.dataVersion || "1"}`;
+        updateCustomCount();
+      } catch(err){
+        $("#dataInfo").textContent="문제를 불러오지 못했어요. 새로고침해 주세요.";
+        console.error(err);
+      }
+    }
+    function fillCategories(){
+      ["categorySelect","listCategory"].forEach(id=>{
+        const el=$("#"+id); CATEGORIES.forEach(c=>{ const o=document.createElement("option"); o.value=c; o.textContent=`${CATEGORY_EMOJI[c]} ${c}`; el.appendChild(o); });
+      });
+      const custom=$("#customCategory"); CATEGORIES.forEach(c=>{ const o=document.createElement("option"); o.value=c; o.textContent=`${CATEGORY_EMOJI[c]} ${c}`; custom.appendChild(o); });
+    }
+    function filteredPool(){
+      const c=$("#categorySelect").value, d=$("#difficultySelect").value;
+      return allRiddles().filter(r=>(c==="전체"||r.category===c)&&(d==="전체"||String(r.difficulty)===d));
+    }
+    function showView(id){ ["homeView","gameView","resultView","listView"].forEach(v=>$("#"+v).classList.toggle("hidden",v!==id)); window.scrollTo({top:0,behavior:"smooth"}); }
+    function start(mode){
+      const pool=filteredPool(); if(!pool.length){ toast("조건에 맞는 문제가 없어요."); return; }
+      state.mode=mode; state.pool=pool; state.index=0; state.score=0; state.locked=false;
+      state.sequence=shuffle(pool).slice(0, mode==="play" ? Math.min(state.round,pool.length) : pool.length);
+      showView("gameView"); renderQuestion();
+    }
+    function renderQuestion(){
+      state.current=state.sequence[state.index]; state.locked=false;
+      const r=state.current;
+      $("#categoryPill").textContent=`${CATEGORY_EMOJI[r.category]||"❓"} ${r.category} · ${difficultyName(r.difficulty)}`;
+      $("#questionEmoji").textContent=r.emoji||"❓"; $("#questionText").textContent=r.question;
+      $("#hintBox").textContent=`💡 ${r.hint || "정답과 관련된 모습을 떠올려 보세요."}`;
+      $("#answerBox").textContent=`정답: ${r.answer}`;
+      $("#explainBox").textContent=`알쏭달쏭 풀이: ${r.explanation || r.answer}`;
+      ["hintBox","answerBox","explainBox"].forEach(id=>$("#"+id).classList.add("hidden"));
+      $("#nextBtn").classList.add("hidden"); $("#answerBtn").classList.remove("hidden");
+      $("#questionCard").classList.remove("correct");
+      const play=state.mode==="play";
+      $("#hostActions").classList.toggle("hidden",play);
+      $("#choiceGrid").classList.toggle("hidden",!play);
+      $("#stats").textContent=play ? `⭐ ${state.score}` : `${state.index+1} / ${state.sequence.length}`;
+      $("#progress").style.width=`${play ? (state.index/state.sequence.length)*100 : ((state.index+1)/state.sequence.length)*100}%`;
+      if(play) renderChoices();
+    }
+    function renderChoices(){
+      const r=state.current;
+      const same=allRiddles().filter(x=>x.id!==r.id && x.answer!==r.answer && x.category===r.category);
+      const other=allRiddles().filter(x=>x.id!==r.id && x.answer!==r.answer);
+      const wrong=shuffle(same.length>=2?same:other).slice(0,2).map(x=>x.answer);
+      const answers=shuffle([r.answer,...wrong]); const grid=$("#choiceGrid"); grid.innerHTML="";
+      answers.forEach(a=>{ const b=document.createElement("button"); b.className="choice"; b.textContent=a; b.addEventListener("click",()=>chooseAnswer(b,a)); grid.appendChild(b); });
+    }
+    function chooseAnswer(btn, answer){
+      if(state.locked) return; state.locked=true; const correct=answer===state.current.answer;
+      $$(".choice").forEach(b=>{ b.disabled=true; if(b.textContent===state.current.answer)b.classList.add("good"); });
+      if(correct){ btn.classList.add("good"); state.score++; $("#questionCard").classList.add("correct"); confetti(); speak("정답이에요! " + state.current.answer); }
+      else { btn.classList.add("bad"); speak("아쉬워요. 정답은 " + state.current.answer + "예요."); }
+      $("#explainBox").classList.remove("hidden"); $("#stats").textContent=`⭐ ${state.score}`;
+      setTimeout(nextQuestion, correct?1500:2200);
+    }
+    function nextQuestion(){
+      state.index++;
+      if(state.index>=state.sequence.length){ finish(); return; }
+      renderQuestion();
+    }
+    function finish(){
+      $("#progress").style.width="100%";
+      const total=state.sequence.length, ratio=state.score/total;
+      $("#resultTitle").textContent=ratio===1?"수수께끼 왕 탄생!":ratio>=.7?"정말 멋진 도전!":"생각 근육이 쑥쑥!";
+      $("#resultText").textContent=`${total}문제 중 ${state.score}문제를 맞혔어요. 틀린 문제도 다시 생각하면 더 똑똑해져요!`;
+      if(ratio>=.7) confetti(); showView("resultView");
+    }
+    function speak(text){
+      if(!("speechSynthesis" in window)){ toast("이 기기는 읽어주기를 지원하지 않아요."); return; }
+      speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang="ko-KR"; u.rate=.92; speechSynthesis.speak(u);
+    }
+    function hostShowHint(){ $("#hintBox").classList.remove("hidden"); }
+    function hostShowAnswer(){ $("#answerBox").classList.remove("hidden"); $("#explainBox").classList.remove("hidden"); $("#answerBtn").classList.add("hidden"); $("#nextBtn").classList.remove("hidden"); confetti(); }
+
+    function renderList(){
+      const q=$("#searchInput").value.trim().toLowerCase(), c=$("#listCategory").value;
+      const rows=allRiddles().filter(r=>(c==="전체"||r.category===c)&&(!q||[r.question,r.answer,r.hint].join(" ").toLowerCase().includes(q)));
+      $("#listCount").textContent=`${rows.length}개의 문제`;
+      const box=$("#riddleList"); box.innerHTML="";
+      rows.forEach(r=>{
+        const el=document.createElement("article"); el.className="riddle-item";
+        const meta=document.createElement("div"); meta.className="meta"; meta.innerHTML=`<span>${CATEGORY_EMOJI[r.category]||"❓"} ${r.category}</span><span>${difficultyName(r.difficulty)}</span>`;
+        const qEl=document.createElement("strong"); qEl.textContent=`${r.emoji||"❓"} ${r.question}`;
+        const d=document.createElement("details"); const s=document.createElement("summary"); s.textContent="정답과 풀이 보기"; const p=document.createElement("p"); p.textContent=`정답: ${r.answer} · ${r.explanation||""}`; d.append(s,p);
+        el.append(meta,qEl,d); box.appendChild(el);
+      });
+    }
+    function openList(){ showView("listView"); renderList(); }
+
+    function saveCustom(){ localStorage.setItem("susu-custom",JSON.stringify(state.custom)); updateCustomCount(); }
+    function updateCustomCount(){ $("#customCount").textContent=`이 기기에 저장된 내 문제: ${state.custom.length}개`; }
+    function addCustom(e){
+      e.preventDefault();
+      const r={ id:`custom-${Date.now()}`, category:$("#customCategory").value, difficulty:1, emoji:"⭐", question:$("#customQuestion").value.trim(), answer:$("#customAnswer").value.trim(), hint:$("#customHint").value.trim(), explanation:$("#customExplanation").value.trim() };
+      state.custom.push(r); saveCustom(); e.target.reset(); toast("새 문제를 추가했어요!");
+    }
+    function exportCustom(){
+      const payload={meta:{schemaVersion:1,exportedAt:new Date().toISOString(),total:state.custom.length},riddles:state.custom};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="susu-my-riddles.json"; a.click(); URL.revokeObjectURL(a.href);
+    }
+    async function importCustom(file){
+      try { const data=JSON.parse(await file.text()); const rows=Array.isArray(data)?data:data.riddles; if(!Array.isArray(rows))throw new Error();
+        const clean=rows.filter(r=>r.question&&r.answer).map((r,i)=>({id:r.id||`import-${Date.now()}-${i}`,category:CATEGORIES.includes(r.category)?r.category:"생각",difficulty:Number(r.difficulty)===2?2:1,emoji:r.emoji||"⭐",question:safeText(r.question),answer:safeText(r.answer),hint:safeText(r.hint),explanation:safeText(r.explanation)}));
+        state.custom=[...state.custom,...clean]; saveCustom(); toast(`${clean.length}개 문제를 불러왔어요.`);
+      } catch { toast("올바른 문제 JSON 파일이 아니에요."); }
+    }
+
+    $$("[data-mode]").forEach(b=>b.addEventListener("click",()=>start(b.dataset.mode)));
+    $("#randomStart").addEventListener("click",()=>start(Math.random()<.5?"host":"play"));
+    $("#homeBtn").addEventListener("click",()=>showView("homeView"));
+    $("#resultHomeBtn").addEventListener("click",()=>showView("homeView"));
+    $("#againBtn").addEventListener("click",()=>start("play"));
+    $("#speakBtn").addEventListener("click",()=>speak(state.current?.question||""));
+    $("#hintBtn").addEventListener("click",hostShowHint);
+    $("#answerBtn").addEventListener("click",hostShowAnswer);
+    $("#nextBtn").addEventListener("click",nextQuestion);
+    $("#listBtn").addEventListener("click",openList);
+    $("#listHomeBtn").addEventListener("click",()=>showView("homeView"));
+    $("#searchInput").addEventListener("input",renderList);
+    $("#listCategory").addEventListener("change",renderList);
+    $("#shuffleList").addEventListener("click",()=>{ state.base=shuffle(state.base); renderList(); });
+    $("#settingsBtn").addEventListener("click",()=>$("#settingsDialog").showModal());
+    $("#closeSettings").addEventListener("click",()=>$("#settingsDialog").close());
+    $("#customForm").addEventListener("submit",addCustom);
+    $("#exportBtn").addEventListener("click",exportCustom);
+    $("#importInput").addEventListener("change",e=>e.target.files[0]&&importCustom(e.target.files[0]));
+    $("#clearCustom").addEventListener("click",()=>{ if(confirm("이 기기에 추가한 문제를 모두 지울까요?")){ state.custom=[]; saveCustom(); toast("추가 문제를 지웠어요."); }});
+    document.addEventListener("keydown",e=>{ if($("#gameView").classList.contains("hidden")||state.mode!=="host")return; if(e.key==="h")hostShowHint(); if(e.key===" "||e.key==="Enter"){ e.preventDefault(); $("#nextBtn").classList.contains("hidden")?hostShowAnswer():nextQuestion(); }});
+    loadData();
+  </script>
+</body>
+</html>
